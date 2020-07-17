@@ -29,12 +29,6 @@ rtb <-function(file) {
                fill=T, stringsAsFactors=FALSE)
   x<- data.frame(x, group = group)
 }
-#to write tables
-wtb <- function(x,y) {
-  write.table(x, 
-              file=paste0(y,'_',cruice,'.csv'), 
-              sep='\t', row.names=FALSE, na='')
-}
 
 x <- lapply(dir(pattern = 'lineage'), rtb)
 x <- do.call(rbind, x)

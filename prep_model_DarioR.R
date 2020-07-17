@@ -60,7 +60,7 @@ writeXStringSet(cleaned_dna,
 quit(save = 'no' )
 
 
-# Using decipher
+# Using decipher ----
 # deshacemos el alinemiento
 
 seqs <- RemoveGaps(dna)
@@ -85,7 +85,7 @@ attr(gT, "members") <- length(seqs)
 class(gT) <- "dendrogram"
 # use the guide tree as input for alignment
 
-?AlignTranslation
+#?AlignTranslation
 DNA <- AlignTranslation(seqs,
                         guideTree=gT,
                         iterations=0,
@@ -106,8 +106,7 @@ writeXStringSet(DNA,
                 compression_level=NA, format="fasta")
 
 
-# Categorize inter-intra insertions
-
+# Categorize inter-intra insertions ----
 
 # it check and filter a set of intergenic insertions 
 DNAStringSet <- dna
@@ -138,11 +137,12 @@ categorizeMSA <- function(DNAStringSet, char = char) {
   return(chars)
 }
 
-chars_mafft <- categorizeMSA(dna, char = '-')
+char <- '-'
+chars_mafft <- categorizeMSA(dna, char = char)
 table(chars_mafft$Categorize)
 
-chars_decipher <- categorizeMSA(DNA, char = '-')
-table(chars_decipher$Categorize)
+# chars_decipher <- categorizeMSA(DNA, char = char)
+# table(chars_decipher$Categorize)
 
 library(ggplot2)
 library(ggsci)
@@ -150,35 +150,50 @@ library(ggsci)
 gg <- ggplot(chars_mafft, aes(difference, ncw, size = Expand, color = Categorize)) +
   geom_point() +
   theme_bw(base_size = 14) +
-  scale_color_aaas() +
+  scale_color_aaas(alpha = 3/5) +
   labs(x = 'Sequence length (MSA)', 
-       y = 'Sequence length (Barcodes)', 
+       y = 'Sequence length (Mitogenome)', 
        color = 'Group of\nInsertions',
        size = 'Contribution of\nInsertions',
        subtitle = paste0('Overview of'," '", char,"' ",'Isertions')) +
-  theme(legend.position="bottom", legend.box = 'vertical') +
+  theme(legend.position = "bottom", legend.box = 'vertical') +
   facet_wrap(~ Categorize, ncol = 2)
 
 tbl <- data.frame(table(chars_mafft$Categorize))
 names(tbl) <- c('Category', 'Sequences')
+
 library(patchwork)
 
 
-box <- ggplot(chars_mafft, aes(y = ncw, x = )) +
+box <- ggplot(chars_mafft, aes(y = ncw, x = 'x')) +
   geom_boxplot() +
   theme_bw(base_size = 14) +
-  geom_jitter(shape=16, position=position_jitter(0.2), alpha = 0.2) +
+  geom_jitter(aes(color = factor(Categorize)), shape=16, alpha = 0.2) +
+  stat_boxplot(fill = NA) +
   labs(x = '', 
        y = 'Sequence length (Barcodes)')
-  
-  
+
+
   #stat_summary(fun.data=mean_sdl, mult=1, 
    #            geom="pointrange", color="red")
 
 save <- gg + (box / gridExtra::tableGrob(tbl))
 
 # gridExtra::tableGrob(mtcars[1:10, c('mpg', 'disp')])
-ggsave(save, filename = paste0(dir, 'insertions.png'), width = 10, height = 7)
+ggsave(save, filename = paste0(dir, '/insertions.png'), width = 10, height = 7)
+
+library(gghighlight)
+# not good! 
+histdat <- select(chars_mafft, difference, ncw, Categorize) %>%
+  melt(value.name = 'length', variable.name = 'msa') %>%
+  filter(Categorize != 'none')
+
+hist <- ggplot(histdat, aes(length, fill = Categorize)) +
+  geom_histogram(bins = 100) +
+  scale_fill_viridis_d(name = 'Category of \nInsertion') +
+  facet_grid(~ Categorize, scales = 'free', space = 'free')
+
+# hist + gghighlight(msa == 'ncw')
 
 # E <- paste0('[A-Z]',char, '+[A-Z]') # Intergenic insertions
 # A <-  paste0(char,'+[A-Z]') # Intragenic insertions

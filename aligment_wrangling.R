@@ -1,4 +1,4 @@
-
+# repasa este codigo. esta rarismo los numeros.
 # hacer barras en base a taxa  y no a n secuencias!
 # repasar el scaterplot de covertura
 # elaborar sanity-check!
@@ -107,12 +107,12 @@ setwd(wd)
 # Load files
 
 ref <- readDNAStringSet(paste0(p, rf), format="fasta")
-ncbi <- readDNAStringSet(paste0(p, nf), format="fasta")
-bold <- readDNAStringSet(paste0(p, bf), format="fasta")
+ncbi <- readDNAStringSet(paste0(p, nf), format="fasta") # 44947
+bold <- readDNAStringSet(paste0(p, bf), format="fasta") # 38586
 
 targetDB <- read.csv(target, sep = '\t')
 
-
+dim(targetDB) # 7033
 
 # morf <- c("morfologia_XIXIMI_01", "morfologia_XIXIMI_02", 
 #          "morfologia_XIXIMI_03", "morfologia_XIXIMI_04",
@@ -134,8 +134,8 @@ targetDB %>%
 
 # Remove the reference from the aligment
 
-bold <- bold[!names(bold) %in% names(ref)]
-ncbi <- ncbi[!names(ncbi) %in% names(ref)]
+bold <- bold[!names(bold) %in% names(ref)] # 38567
+ncbi <- ncbi[!names(ncbi) %in% names(ref)] # 44928
 
 # GROUP 1 ::
 # Folmer Complete (FC) coverage, NCBI (N) and BOLD (B)
@@ -431,7 +431,8 @@ library(ggsci)
 p1 <- ggplot(filter(ng, group != 'Target'), aes(x=rank, y=ntaxa, color = set, group = group, shape = marker)) +
   geom_point(size = 3, alpha = 0.7) + 
   geom_path() + 
-  facet_grid(db ~ wrap, scales = 'free_y', drop = FALSE) +
+  #facet_grid(db ~ wrap, scales = 'free_y', space = 'free_y', drop = FALSE) +
+  facet_wrap(db~wrap, scales = 'free_y', ncol = 2)  +
   scale_color_jco() + 
   labs(title=" ",
        subtitle = '',
@@ -440,12 +441,12 @@ p1 <- ggplot(filter(ng, group != 'Target'), aes(x=rank, y=ntaxa, color = set, gr
        y= "Number of taxa") + theme_bw(base_size = 14) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-p1 + scale_x_discrete(labels = c("Order_wm" = "Order",  
+p1 <- p1 + scale_x_discrete(labels = c("Order_wm" = "Order",  
                                  "Family_wm"= "Family", 
                                  "Genus_wm" = "Genus",  
                                  "Species_wm" = "Species"))
 
-ggsave("figure_1S.png", path = wd)
+ggsave("figure_1S.png", path = wd, width = 5.67,height =  7)
 
 # Prepare barplot based on percent of target (either and only) groups
 data.table(ncount_groups(target_only),  wrap = 'target')

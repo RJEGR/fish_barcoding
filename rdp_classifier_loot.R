@@ -1,7 +1,8 @@
 
 require(tidyverse)
 require(ggplot2)
-path <- 'metagenomics/train_rdp_classifier/fish_data/'
+
+path <- '~/metagenomics/train_rdp_classifier/fish_data/'
 
 setwd(path)
 
@@ -19,6 +20,10 @@ file2 <- 'ROC_peces_disponibles_oksp_loto.txt'
 # Precision = (TRP / TRP +  FPR)
 
 rank <- c('Kingdom',	'Class',	'Order',	'Family',	'Genus',	'Species')
+
+
+# insert boxplot in the function plotLoot!!
+
 x <- read.table(file1, 
                 sep="\t", skip = 2, header = T, 
                 na.strings = "NaN")
@@ -53,6 +58,7 @@ plotLoot <- function(file) {
   require(reshape2)
   require(ggplot2)
   require(stringr)
+  require(patchwork)
 
   
   rank <- c('Kingdom',	'Class',	'Order',	'Family',	'Genus',	'Species')
